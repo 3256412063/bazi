@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八字排盘 - 专业命理分析</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:#1a1a2e;color:#e0e0e0;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:15px}
+h1{text-align:center;color:#f0a500;font-size:1.8em;margin:15px 0;text-shadow:0 0 20px rgba(240,165,0,0.3)}
+.card{background:#16213e;border-radius:12px;padding:18px;margin:12px 0;border:1px solid #0f3460}
+.card h2{color:#f0a500;font-size:1.2em;margin-bottom:10px;border-bottom:1px solid #0f3460;padding-bottom:6px}
+label{display:inline-block;width:80px;color:#aaa;font-size:0.95em}
+input,select{padding:8px 12px;border:1px solid #0f3460;border-radius:6px;background:#0a0a1a;color:#fff;font-size:0.95em}
+input[type="number"],input[type="text"],select{width:140px}
+input[type="datetime-local"]{width:200px}
+button{padding:10px 24px;border:none;border-radius:6px;cursor:pointer;font-size:1em;font-weight:bold;transition:all 0.3s}
+.btn-primary{background:linear-gradient(135deg,#f0a500,#cf7500);color:#fff}
+.btn-primary:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(240,165,0,0.4)}
+.btn-secondary{background:#0f3460;color:#e0e0e0;margin-left:8px}
+.btn-secondary:hover{background:#1a4a8c}
+.row{display:flex;align-items:center;margin:8px 0;flex-wrap:wrap;gap:6px}
+.pillars{display:flex;justify-content:center;gap:8px;margin:15px 0;flex-wrap:wrap}
+.pillar{text-align:center;background:#0f3460;border-radius:10px;padding:12px 16px;min-width:110px;border:1px solid #1a4a8c}
+.pillar .title{color:#f0a500;font-weight:bold;font-size:1.05em;margin-bottom:6px}
+.pillar .gan{font-size:1.5em;color:#fff;margin:4px 0}
+.pillar .zhi{font-size:1.1em;color:#ccc;margin:2px 0}
+.pillar .cangan{font-size:0.82em;color:#888;margin-top:4px;line-height:1.4}
+.pillar .shishen{font-size:0.82em;color:#e8b87d;margin-top:2px}
+.pillar .nayin{font-size:0.78em;color:#9aa0a6;margin-top:2px}
+.wuxing-chart{display:flex;justify-content:center;gap:15px;margin:15px 0;flex-wrap:wrap}
+.wx-item{text-align:center;padding:10px 18px;border-radius:10px;min-width:80px}
+.wx-item .wx-name{font-size:1.2em;font-weight:bold;margin-bottom:4px}
+.wx-item .wx-count{font-size:1.6em;font-weight:bold}
+.wx-bar{height:6px;border-radius:3px;margin-top:6px;background:rgba(255,255,255,0.1)}
+.wx-bar-fill{height:100%;border-radius:3px;transition:width 0.5s}
+.dayun-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.9em}
+.dayun-table th{background:#0f3460;color:#f0a500;padding:8px;border:1px solid #1a4a8c}
+.dayun-table td{padding:7px 10px;border:1px solid #1a4a8c;text-align:center}
+.dayun-table tr:nth-child(even){background:rgba(15,52,96,0.3)}
+.dayun-table tr:hover{background:rgba(240,165,0,0.08)}
+.info-text{line-height:1.8;color:#ccc;font-size:0.93em}
+.info-text strong{color:#f0a500}
+#aiSection{margin-top:15px}
+#aiInput{width:100%;min-height:80px;padding:12px;border:1px solid #0f3460;border-radius:8px;background:#0a0a1a;color:#fff;font-size:0.95em;resize:vertical;font-family:inherit}
+#aiOutput{width:100%;min-height:120px;padding:12px;border:1px solid #0f3460;border-radius:8px;background:#0a0a1a;color:#e0e0e0;font-size:0.93em;margin-top:10px;resize:vertical;line-height:1.8;white-space:pre-wrap;font-family:inherit}
+.loading{display:inline-block;width:18px;height:18px;border:3px solid #333;border-top-color:#f0a500;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{color:#ff6b6b;background:rgba(255,107,107,0.1);padding:10px;border-radius:6px;margin:8px 0;border:1px solid rgba(255,107,107,0.3)}
+.success-msg{color:#51cf66;background:rgba(81,207,102,0.1);padding:10px;border-radius:6px;margin:8px 0;border:1px solid rgba(81,207,102,0.3)}
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:8px 18px;border-radius:6px;cursor:pointer;font-size:0.9em;background:#0f3460;color:#aaa;border:1px solid transparent;transition:all 0.3s}
+.tab.active{background:linear-gradient(135deg,#f0a500,#cf7500);color:#fff;font-weight:bold}
+.tab:hover:not(.active){background:#1a4a8c;color:#fff}
+.panel{display:none}.panel.active{display:block}
+.mingge{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #f0a500;border-radius:10px;padding:15px;margin:10px 0}
+.mingge-title{color:#f0a500;font-size:1.15em;font-weight:bold;margin-bottom:8px}
+.mingge-desc{color:#ccc;line-height:1.8;font-size:0.93em}
+.hidden{display:none!important}
+@media(max-width:600px){
+  .pillar{min-width:90px;padding:8px 10px}
+  .pillar .gan{font-size:1.25em}
+  input[type="datetime-local"]{width:160px}
+  .container{padding:10px}
+  h1{font-size:1.4em}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔮 八字排盘 · 命理分析</h1>
+
+  <!-- 输入区 -->
+  <div class="card">
+    <h2>📅 输入出生信息</h2>
+    <div class="row">
+      <label>出生日期：</label>
+      <input type="datetime-local" id="birthday" />
+    </div>
+    <div class="row">
+      <label>性别：</label>
+      <select id="gender"><option value="male">男</option><option value="female">女</option></select>
+    </div>
+    <div class="row">
+      <label>历法：</label>
+      <select id="calendar"><option value="solar">公历（阳历）</option><option value="lunar">农历（阴历）</option></select>
+    </div>
+    <div class="row">
+      <button class="btn-primary" onclick="calcBazi()">🔍 排盘</button>
+      <button class="btn-secondary" onclick="useNow()">⏰ 当前时间</button>
+    </div>
+    <div id="solarTimeInfo" class="info-text hidden" style="margin-top:8px"></div>
+  </div>
+
+  <!-- 结果区 -->
+  <div id="resultArea" class="hidden">
+
+    <!-- 四柱 -->
+    <div class="card">
+      <h2>🎯 四柱八字</h2>
+      <div class="pillars" id="pillars"></div>
+    </div>
+
+    <!-- 五行力量 -->
+    <div class="card">
+      <h2>⚡ 五行力量分析</h2>
+      <div class="wuxing-chart" id="wuxingChart"></div>
+    </div>
+
+    <!-- 十神分析 -->
+    <div class="card">
+      <h2>⚖️ 十神分析</h2>
+      <div id="shishenInfo"></div>
+    </div>
+
+    <!-- 命格判断 -->
+    <div class="card">
+      <h2>🏆 命格判断</h2>
+      <div id="minggeInfo"></div>
+    </div>
+
+    <!-- 大运流年 -->
+    <div class="card">
+      <h2>📈 大运列表</h2>
+      <div style="overflow-x:auto">
+        <table class="dayun-table" id="dayunTable">
+          <thead><tr><th>大运</th><th>年龄</th><th>起运时间</th><th>十神</th><th>纳音</th></tr></thead>
+          <tbody id="dayunBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI 命理问答 -->
+    <div class="card" id="aiSection">
+      <h2>🤖 AI 命理问答</h2>
+      <p style="color:#888;font-size:0.88em;margin-bottom:8px">基于您的八字信息，向 AI 提问命理相关问题</p>
+      <textarea id="aiInput" placeholder="例如：我的性格特点是什么？适合从事什么职业？今年运势如何？"></textarea>
+      <div style="margin-top:10px">
+        <button class="btn-primary" onclick="askAI()">💬 提问</button>
+        <button class="btn-secondary" onclick="clearAI()">🗑️ 清空</button>
+      </div>
+      <div id="aiOutputWrap" style="margin-top:10px"><textarea id="aiOutput" readonly placeholder="AI 回答将显示在这里..."></textarea></div>
+      <div id="aiStatus"></div>
+    </div>
+
+  </div>
+
+  <!-- 页脚 -->
+  <div style="text-align:center;color:#555;font-size:0.8em;margin:20px 0 10px">
+    <p>Powered by Lunar-Javascript & DashScope Qwen · 仅供参考娱乐</p>
+  </div>
+</div>
+
+<!-- lunar-javascript 库 (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.11/lunar.min.js"></script>
+<script>
+// ========== 全局数据 ==========
+let baziData = null;
+
+// ========== 天干地支基础数据 ==========
+const TIANGAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const DIZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const WUXING_MAP = {
+  '甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土',
+  '庚':'金','辛':'金','壬':'水','癸':'水',
+  '子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火',
+  '午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'
+};
+const WUXING_COLOR = {'木':'#51cf66','火':'#ff6b6b','土':'#fcc419','金':'#adb5bd','水':'#339af0'};
+const WUXING_ELEMENT = {'木':'🌿','火':'🔥','土':'⛰️','金':'⚔️','水':'💧'};
+
+// 藏干表
+const CANGANG = {
+  '子':['癸'],'丑':['己','癸','辛'],'寅':['甲','丙','戊'],
+  '卯':['乙'],'辰':['戊','乙','癸'],['巳':['丙','庚','戊']],
+  '午':['丁','己'],'未':['己','丁','乙'],
+  '申':['庚','壬','戊'],['酉':['辛'],'戌':['戊','辛','丁'],
+  '亥':['壬','甲']
+};
+
+// 纳音五行
+const NAYIN = {
+  '甲子':'海中金','乙丑':'海中金','丙寅':'炉中火','丁卯':'炉中火',
+  '戊辰':'大林木','己卯':'大林木','庚午':'路旁土','辛未':'路旁土',
+  '壬申':'剑锋金','癸酉':'剑锋金','甲戌':'山头火','乙亥':'山头火',
+  '丙子':'涧下水','丁丑':'涧下水','戊寅':'城头土','己卯':'城头土',
+  '庚辰':'白蜡金','辛巳':'白蜡金','壬午':'杨柳木','癸未':'杨柳木',
+  '甲申':'泉中水','乙酉':'泉中水','丙戌':'屋上土','丁亥':'屋上土',
+  '戊子':'霹雳火','己丑':'霹雳火','庚寅':'松柏木','辛卯':'松柏木',
+  '壬辰':'长流水','癸巳':'长流水','甲午':'砂中金','乙未':'砂中金',
+  '丙申':'山下火','丁酉':'山下火','戊戌':'平地木','己亥':'平地木',
+  '庚子':'壁上土','辛丑':'壁上土','壬寅':'金箔金','癸卯':'金箔金',
+  '甲辰':'覆灯火','乙巳':'覆灯火','丙午':'天河水','丁未':'天河水',
+  '戊申':'大驿土','己酉','大驿土','庚戌':'钗钏金','辛亥':'钗钏金',
+  '壬子':'桑柘木','癸丑':'桑柘木','甲寅':'大溪水','乙卯':'大溪水',
+  '丙辰':'沙中土','丁巳':'沙中土','庚午':'天上火','辛未':'天上火',
+  '壬申':'石榴木','癸酉':'石榴木','甲戌':'大海水','乙亥':'大海水'
+};
+
+// 十神
+function getShishen(dayGan, gan) {
+  const map = {
+    '甲':{'甲':'比肩','乙':'劫财','丙':'食神','丁':'伤官','戊':'偏财','己':'正财','庚':'七杀','辛':'正官','壬':'偏印','癸':'正印'},
+    '乙':{'乙':'比肩','甲':'劫财','丁':'食神','丙':'伤官','己':'偏财','戊':'正财','辛':'七杀','庚':'正官','癸':'偏印','壬':'正印'},
+    '丙':{'丙':'比肩','丁':'劫财','戊':'食神','己':'伤官','庚':'偏财','辛','正财','壬':'七杀','癸':'正官','甲':'偏印','乙':'正印'},
+    '丁':{'丁':'比肩','丙':'劫财','己':'食神','戊':'伤官','辛':'偏财','庚':'正财','癸':'七杀','壬':'正官','乙':'偏印','甲':'正印'},
+    '戊':{'戊':'比肩','己':'劫财','庚','食神','辛':'伤官','壬':'偏财','癸':'正财','甲':'七杀','乙':'正官','丙':'偏印','丁':'正印'},
+    '己':{'己':'比肩','戊':'劫财','辛':'食神','庚':'伤官','癸':'偏财','壬':'正财','乙':'七杀','甲':'正官','丁':'偏印','丙':'正印'},
+    '庚':{'庚':'比肩','辛':'劫财','壬','食神','癸':'伤官','甲':'偏财','乙':'正财','丙':'七杀','丁':'正官','戊':'偏印','己':'正印'},
+    '辛':{'辛':'比肩','庚':'劫财','癸':'食神','壬':'伤官','乙':'偏财','甲':'正财','丁':'七杀','丙':'正官','己':'偏印','戊':'正印'},
+    '壬':{'壬':'比肩','癸':'劫财','甲','食神','乙':'伤官','丙':'偏财','丁':'正财','戊':'七杀','己':'正官','庚':'偏印','辛':'正印'},
+    '癸':{'癸':'比肩','壬':'劫财','乙','食神','甲':'伤官','丁':'偏财','丙':'正财','己':'七杀','戊':'正官','辛':'偏印','庚':'正印'}
+  };
+  return (map[dayGan] && map[dayGan][gan]) || '';
+}
+
+// ========== 排盘核心函数 ==========
+function calcBazi() {
+  const birthdayEl = document.getElementById('birthday');
+  const val = birthdayEl.value;
+  if (!val) { alert('请选择出生日期时间！'); return; }
+
+  const gender = document.getElementById('gender').value;
+  const calendar = document.getElementById('calendar').value;
+  
+  let dt = new Date(val);
+  
+  // 使用 lunar-javascript 计算
+  let solar, lunar;
+  try {
+    if (calendar === 'solar') {
+      solar = Solar.fromDate(dt);
+      lunar = solar.getLunar();
+    } else {
+      // 农历输入需要转换
+      lunar = Lunar.fromDate(dt);
+      solar = lunar.getSolar();
+    }
+  } catch(e) {
+    alert('日期计算错误：' + e.message);
+    return;
+  }
+
+  // 八字
+  const bazi8 = lunar.getEightChar();
+  const yearZhi = bazi8.getYearZhi();
+  const monthZhi = bazi8.getMonthZhi();
+  const dayZhi = bazi8.getDayZhi();
+  const timeZhi = bazi8.getTimeZhi();
+  
+  const yearGan = bazi8.getYearGan();
+  const monthGan = bazi8.getMonthGan();
+  const dayGan = bazi8.getDayGan();
+  const timeGan = bazi8.getTimeGan();
+
+  // 真太阳时计算
+  const solarTimeInfo = calcTrueSolarTime(solar, dt);
+  const stEl = document.getElementById('solarTimeInfo');
+  if (solarTimeInfo.diffMinutes !== 0) {
+    stEl.innerHTML = `☀️ <strong>真太阳时修正：</strong>平太阳时 ${formatDate(dt)} → 真太阳时约 ${solarTimeInfo.trueSolarStr}（${solarTimeInfo.diffMinutes > 0 ? '+' : ''}${solarTimeInfo.diffMinutes}分钟）`;
+    stEl.classList.remove('hidden');
+  } else {
+    stEl.classList.add('hidden');
+  }
+
+  // 保存全局数据
+  baziData = {
+    yearGan: yearGan.toString(), yearZhi: yearZhi.toString(),
+    monthGan: monthGan.toString(), monthZhi: monthZhi.toString(),
+    dayGan: dayGan.toString(), dayZhi: dayZhi.toString(),
+    timeGan: timeGan.toString(), timeZhi: timeZhi.toString(),
+    gender, calendar,
+    solarDate: solar.toFullString(),
+    lunarDate: lunar.toFullString(),
+    solarTimeInfo,
+    shishenYear: getShishen(dayGan.toString(), yearGan.toString()),
+    shishenMonth: getShishen(dayGan.toString(), monthGan.toString()),
+    shishenDay: '日主（自己）',
+    shishenTime: getShishen(dayGan.toString(), timeGan.toString()),
+  };
+
+  // 渲染四柱
+  renderPillars(baziData);
+  // 渲染五行
+  renderWuxing(baziData);
+  // 渲染十神
+  renderShishen(baziData);
+  // 渲染命格
+  renderMingge(baziData);
+  // 渲染大运
+  renderDayun(lunar, baziData);
+
+  // 显示结果区
+  document.getElementById('resultArea').classList.remove('hidden');
+}
+
+function useNow() {
+  const now = new Date();
+  const iso = now.toISOString().slice(0,16);
+  document.getElementById('birthday').value = iso;
+  calcBazi();
+}
+
+// ========== 渲染函数 ==========
+function renderPillars(data) {
+  const pillars = [
+    { title: '年柱', gan: data.yearGan, zhi: data.yearZhi, ss: data.shishenYear },
+    { title: '月柱', gan: data.monthGan, zhi: data.monthZhi, ss: data.shishenMonth },
+    { title: '日柱', gan: data.dayGan, zhi: data.dayZhi, ss: data.shishenDay },
+    { title: '时柱', gan: data.timeGan, zhi: data.timeZhi, ss: data.shishenTime },
+  ];
+  
+  const html = pillars.map(p => {
+    const cg = CANGANG[p.zhi] || [];
+    const nayinKey = p.gan + p.zhi;
+    const nayin = NAYIN[nayinKey] || '';
+    return `<div class="pillar">
+      <div class="title">${p.title}</div>
+      <div class="gan">${p.gan}${p.zhi}</div>
+      <div class="cangan">藏干：${cg.join(' ') || '-'}</div>
+      <div class="shishen">${p.ss}</div>
+      ${nayin ? `<div class="nayin">纳音：${nayin}</div>` : ''}
+    </div>`;
+  }).join('');
+  
+  document.getElementById('pillars').innerHTML = html;
+}
+
+function renderWuxing(data) {
+  const allGans = [data.yearGan, data.monthGan, data.dayGan, data.timeGan];
+  const allZhis = [data.yearZhi, data.monthZhi, data.dayZhi, data.timeZhi];
+  
+  // 统计五行
+  const counts = {'木':0,'火':0,'土':0,'金':0,'水':0};
+  allGans.forEach(g => { const w = WUXING_MAP[g]; if(w) counts[w]++; });
+  allZhis.forEach(z => { const w = WUXING_MAP[z]; if(w) counts[w]++; });
+  
+  // 藏干也算
+  allZhis.forEach(z => {
+    (CANGANG[z]||[]).forEach(g => { const w = WUXING_MAP[g]; if(w) counts[w] += 0.5; });
+  });
+
+  const total = Object.values(counts).reduce((a,b)=>a+b,0) || 1;
+  const names = ['木','火','土','金','水'];
+  const html = names.map(name => {
+    const c = counts[name];
+    const pct = Math.round(c / total * 100);
+    const color = WUXING_COLOR[name];
+    return `<div class="wx-item" style="border:1px solid ${color}40">
+      <div class="wx-name" style="color:${color}">${WUXING_ELEMENT[name]} ${name}</div>
+      <div class="wx-count" style="color:${color}">${c.toFixed(1)}</div>
+      <div class="wx-bar"><div class="wx-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div style="font-size:0.8em;color:#888">${pct}%</div>
+    </div>`;
+  }).join('');
+  
+  document.getElementById('wuxingChart').innerHTML = html;
+}
+
+function renderShishen(data) {
+  const items = [
+    ['年柱', data.shishenYear, data.yearGan + data.yearZhi],
+    ['月柱', data.shishenMonth, data.monthGan + data.monthZhi],
+    ['日柱', '日主（自己）', data.dayGan + data.dayZhi],
+    ['时柱', data.shishenTime, data.timeGan + data.timeZhi],
+  ];
+  
+  // 判断身强身弱
+  const dayWx = WUXING_MAP[data.dayGan];
+  let supportCount = 0, opposeCount = 0;
+  [data.yearGan,data.monthGan,data.timeGan].forEach(g => {
+    if (WUXING_MAP[g] === dayWx) supportCount++;
+    else opposeCount++;
+  });
+  const strength = supportCount > opposeCount ? '身强' : (supportCount < opposeCount ? '身弱' : '中和');
+  const strengthDesc = {
+    '身强': '日主得令得势，能量充沛，可任财官。',
+    '身弱': '日主失令，需印比为助，宜补益。',
+    '中和': '日主气势均衡，进退自如。'
+  };
+
+  let html = `<p class="info-text"><strong>日主五行：</strong>${WUXING_ELEMENT[dayWx]} ${dayWx} | <strong>强弱判断：</strong>${strength} — ${strengthDesc[strength]}</p>`;
+  html += '<table class="dayun-table"><thead><tr><th>柱位</th><th>干支</th><th>十神</th><th>五行</th></tr></thead><tbody>';
+  items.forEach(([col,ganzhi,ss]) => {
+    const g = ganzhi[0];
+    html += `<tr><td>${col}</td><td>${ganzhi}</td><td>${ss}</td><td style="color:${WUXING_COLOR[WUXING_MAP[g]]}">${WUXING_MAP[g]}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  
+  document.getElementById('shishenInfo').innerHTML = html;
+}
+
+function renderMingge(data) {
+  const dg = data.dayGan;
+  const dz = data.dayZhi;
+  const mg = data.monthGan;
+  const mz = data.monthZhi;
+  const yg = data.yearGan;
+  const yz = data.yearZhi;
+  
+  const mingges = [];
+  
+  // 常见格局判断
+  // 1. 正官格
+  const zhengGuan = getShishen(dg, TIANGAN[(TIANGAN.indexOf(dg)+7)%10]);
+  if (data.monthGan === TIANGAN[(TIANGAN.indexOf(dg)+7)%10]) {
+    mingges.push({name: '正官格', desc: '月干透出正官，为人正直守法，有领导能力，适宜公职管理。'});
+  }
+  // 2. 偏官格（七杀）
+  if (data.monthGan === TIANGAN[(TIANGAN.indexOf(dg)+6)%10]) {
+    mingges.push({name: '七杀格', desc: '月干透出七杀，魄力十足，有开拓精神，宜武职或竞争性行业。'});
+  }
+  // 3. 正财格
+  if (data.monthGan === TIANGAN[(TIANGAN.indexOf(dg)+4)%10]) {
+    mingges.push({name: '正财格', desc: '月干透出正财，重感情务实，善于理财，财运稳健。'});
+  }
+  // 4. 偏财格
+  if (data.monthGan === TIANGAN[(TIANGAN.indexOf(dg)+3)%10]) {
+    mingges.push({name: '偏财格', desc: '月干透出偏财，善于把握商机，人缘好，有意外之财。'});
+  }
+  // 5. 食神格
+  if (data.monthGan === TIANGAN[(TIANGAN.indexOf(dg)+2)%10]) {
+    mingges.push({name: '食神格', desc: '月干透出食神，聪明温和，有艺术天赋，福气深厚。'});
+  }
+  // 6. 伤官格
+  if (data.monthGan === TIANGAN[(TIANGAN.indexOf(dg)+1)%10]) {
+    mingges.push({name: '伤官格', desc: '月干透出伤官，才华横溢，创意丰富，但需注意口舌是非。'});
+  }
+  // 7. 建禄格
+  if (data.monthZhi === DIZHI[(TIANGAN.indexOf(dg)%12)]) {
+    mingges.push({name: '建禄格', desc: '月支与日主同气，自立自强，但需财官辅助方能发越。'});
+  }
+  // 8. 月刃格
+  const yuerenIdx = (TIANGAN.indexOf(dg)%12 + 6) % 12;
+  if (data.monthZhi === DIZHI[yuerenIdx]) {
+    mingges.push({name: '月刃格', desc: '月支为日主之刃，性格刚毅果断，易有波折，宜修德行善。'});
+  }
+  
+  // 专气格（天干一气、地支三合等）
+  const allGans = [yg, mg, dg, data.timeGan];
+  const sameGan = allGans.filter(g => g === dg).length;
+  if (sameGan >= 3) {
+    mingges.push({name: '天干一气格', desc: '多干同属日主之气，气势磅礴，独断专行，成也在此败也在此。'});
+  }
+
+  if (mingges.length === 0) {
+    mingges.push({
+      name: '普通格局',
+      desc: '此八字未形成标准特殊格局，属于正格八字，需综合五行喜忌、大运流年来具体分析。'
+    });
+  }
+
+  const html = mingges.map(mg => 
+    `<div class="mingge"><div class="mingge-title">◆ ${mg.name}</div><div class="mingge-desc">${mg.desc}</div></div>`
+  ).join('');
+  
+  document.getElementById('minggeInfo').innerHTML = html;
+}
+
+function renderDayun(lunar, data) {
+  const dayunList = lunar.getYun();
+  if (!dayunList || !dayunList.getDayYuns) {
+    document.getElementById('dayunBody').innerHTML = '<tr><td colspan="5" style="color:#888">无法计算大运</td></tr>';
+    return;
+  }
+  
+  const dayuns = dayunList.getDayYuns ? dayunList.getDayYuns() : [];
+  const startYear = dayunList.getStartYear ? dayunList.getStartYear() : 0;
+  const genderVal = data.gender === 'male' ? 1 : 0;
+  
+  // 手动构建大运（lunar-javascript API 可能不同）
+  const html = buildDayunManual(lunar, data.gender);
+  document.getElementById('dayunBody').innerHTML = html;
+}
+
+function buildDayunManual(lunar, gender) {
+  try {
+    const eightChar = lunar.getEightChar();
+    const yun = eightChar.getYun(gender === 'male' ? 1 : 0);
+    const dayYuns = yun.getDayYuns();
+    
+    if (dayYuns && dayYuns.length > 0) {
+      return dayYuns.map((dy, i) => {
+        const ganZhi = dy.getGanZhi();
+        const startAge = dy.getStartAge();
+        const startY = dy.getStartYear();
+        const endY = dy.getEndYear();
+        const startSolar = dy.getStartSolar();
+        
+        const gan = ganZhi ? ganZhi.getGan()+'' : '?';
+        const zhi = ganZhi ? ganZhi.getZhi()+'' : '?';
+        const ss = baziData ? getShishen(baziData.dayGan, gan) : '';
+        const nk = gan+zhi;
+        const nayin = NAYIN[nk] || '';
+        
+        return `<tr>
+          <td style="font-weight:bold;color:#f0a500">${gan}${zhi}</td>
+          <td>${startAge}~${startAge+10}</td>
+          <td>${startY}年${startSolar ? '~'+startSolar.getYear()+'年' : ''}</td>
+          <td>${ss}</td>
+          <td style="font-size:0.85em;color:#9aa0a6">${nayin}</td>
+        </tr>`;
+      }).join('');
+    }
+  } catch(e) {
+    console.log('大运计算备用方案:', e);
+  }
+  
+  // 备用：手动推算
+  return manualDayunFallback(lunar, gender);
+}
+
+function manualDayunFallback(lunar, gender) {
+  const eg = baziData;
+  if (!eg) return '<tr><td colspan="5">数据不足</td></tr>';
+  
+  const monthGanIdx = TIANGAN.indexOf(eg.monthGan);
+  const monthZhiIdx = DIZHI.indexOf(eg.monthZhi);
+  const isYang = [0,2,4,6,8].indexOf(TIANGAN.indexOf(eg.yearGan)) >= 0;
+  const forward = (gender === 'male' && isYang) || (gender === 'female' && !isYang);
+  
+  let rows = '';
+  for (let i = 1; i <= 8; i++) {
+    let gzIdx, zIdx;
+    if (forward) {
+      gzIdx = (monthGanIdx + i) % 10;
+      zIdx = (monthZhiIdx + i) % 12;
+    } else {
+      gzIdx = (monthGanIdx - i + 10) % 10;
+      zIdx = (monthZhiIdx - i + 12) % 12;
+    }
+    const g = TIANGAN[gzIdx];
+    const z = DIZHI[zIdx];
+    const ss = getShishen(eg.dayGan, g);
+    const ageStart = i * 10;
+    const nayin = NAYIN[g+z] || '';
+    rows += `<tr>
+      <td style="font-weight:bold;color:#f0a500">${g}${z}</td>
+      <td>${ageStart}~${ageStart+10}</td>
+      <td>-</td>
+      <td>${ss}</td>
+      <td style="font-size:0.85em;color:#9aa0a6">${nayin}</td>
+    </tr>`;
+  }
+  return rows;
+}
+
+// ========== 真太阳时 ==========
+function calcTrueSolarTime(solar, dt) {
+  try {
+    // 简化的真太阳时计算（均时差修正）
+    const doy = Math.floor((dt - new Date(dt.getFullYear(),0,0)) / 86400000);
+    // 均时差近似公式（分钟）
+    const B = 360/365 * (doy - 81);
+    const EoT = 9.87 * Math.sin(2*B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+    const diffMinutes = Math.round(EoT);
+    
+    const trueDt = new Date(dt.getTime() + diffMinutes * 60000);
+    return {
+      diffMinutes,
+      trueSolarStr: formatDate(trueDt)
+    };
+  } catch(e) {
+    return { diffMinutes: 0, trueSolarStr: formatDate(dt) };
+  }
+}
+
+function formatDate(dt) {
+  const pad = n => String(n).padStart(2,'0');
+  return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+}
+
+// ========== AI 问答 ==========
+const DASHSCOPE_API_KEY = 'sk-ws-H.REIDYPR.ajR4';
+const MODEL = 'qwen3.7-max';
+
+async function askAI() {
+  const question = document.getElementById('aiInput').value.trim();
+  if (!question) { alert('请输入问题！'); return; }
+  if (!baziData) { alert('请先排盘！'); return; }
+
+  const output = document.getElementById('aiOutput');
+  const status = document.getElementById('aiStatus');
+  output.value = '正在思考中...';
+  status.innerHTML = '<span class="loading"></span>AI 正在分析您的八字信息，请稍候...';
+
+  const systemPrompt = `你是一位专业的八字命理大师，精通四柱预测学、五行生克、十神关系、大运流年等传统命理学知识。请根据用户提供的八字信息，结合传统命理理论给出专业、详细的分析。
+
+回答要求：
+1. 用中文回答，语气专业但不失亲和力
+2. 结合具体的干支五行进行分析，不要泛泛而谈
+3. 给出建设性的建议和指导
+4. 可以提及注意事项和改运方法
+5. 最后声明"以上内容仅供参考娱乐，命由己造，福自我求"
+
+当前用户八字信息：
+- 年柱：${baziData.yearGan}${baziData.yearZhi}
+- 月柱：${baziData.monthGan}${baziData.monthZhi}
+- 日柱：${baziData.dayGan}${baziData.dayZhi}
+- 时柱：${baziData.timeGan}${baziData.timeZhi}
+- 性别：${baziData.gender === 'male' ? '男' : '女'}
+- 公历生日：${baziData.solarDate}
+- 农历生日：${baziData.lunarDate}`;
+
+  const body = {
+    model: MODEL,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: question }
+    ],
+    temperature: 0.7,
+    max_tokens: 2000
+  };
+
+  try {
+    // 尝试直连 DashScope（可能已支持 CORS）
+    const res = await fetchWithProxy('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DASHSCOPE_API_KEY}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => 'Unknown error');
+      throw new Error(`API 错误 (${res.status}): ${errText}`);
+    }
+
+    const json = await res.json();
+    const reply = json.choices?.[0]?.message?.content || '无回复内容';
+    output.value = reply;
+    status.innerHTML = '<div class="success-msg">✅ 分析完成</div>';
+  } catch(err) {
+    output.value = `❌ 请求失败：${err.message}\n\n可能的原因：\n1. 网络连接问题\n2. API 配额用完\n3. CORS 跨域限制（浏览器安全策略）\n\n建议：如果持续报错，可以尝试使用手机热点或更换网络环境。`;
+    status.innerHTML = `<div class="error-msg">❌ 失败：${err.message}</div>`;
+  }
+}
+
+// 带自动 fallback 的 fetch
+async function fetchWithProxy(url, options) {
+  // 方式1：直接调用
+  try {
+    const r = await fetch(url, options);
+    if (r.ok) return r;
+    // 如果是 CORS 错误，继续尝试代理
+    if (r.type === 'opaque') throw new Error('CORS blocked');
+    return r;
+  } catch(e) {}
+
+  // 方式2：尝试公共 CORS 代理
+  const proxies = [
+    (u,o) => fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(u), o),
+    (u,o) => fetch('https://corsproxy.io/?' + encodeURIComponent(u), o),
+  ];
+
+  for (const proxyFn of proxies) {
+    try {
+      const r = await proxyFn(url, options);
+      if (r.ok) return r;
+    } catch(e) {}
+  }
+
+  throw new Error('所有请求方式均失败，可能是网络问题或 CORS 限制');
+}
+
+function clearAI() {
+  document.getElementById('aiInput').value = '';
+  document.getElementById('aiOutput').value = '';
+  document.getElementById('aiStatus').innerHTML = '';
+}
+
+// ========== 初始化 ==========
+window.onload = function() {
+  // 设置默认时间为当前时间
+  const now = new Date();
+  const iso = now.toISOString().slice(0,16);
+  document.getElementById('birthday').value = iso;
+  
+  // 从 localStorage 恢复 API Key（如果有自定义）
+  try {
+    const savedKey = localStorage.getItem('dashscope_key');
+    if (savedKey) {
+      window.DASHSCOPE_API_KEY = savedKey;
+    }
+  } catch(e) {}
+};
+</script>
+</body>
+</html>
